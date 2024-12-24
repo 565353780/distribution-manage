@@ -5,8 +5,8 @@ from scipy.stats import norm
 class MultiLinearTransformer(object):
     def __init__(
         self,
-        target_min_bound: float = 0.2,
-        target_max_bound: float = 0.8,
+        target_min_bound: float = 0.1,
+        target_max_bound: float = 0.9,
         linear_num: int = 100,
     ) -> None:
         self.target_min_bound = target_min_bound
@@ -44,11 +44,11 @@ class MultiLinearTransformer(object):
 
         target_bounds = np.linspace(self.target_min_bound, self.target_max_bound, linear_num + 1, dtype=np.float64)
 
-        self.target_values = [norm.ppf(target_bound, loc=mean, scale=std) for target_bound in target_bounds]
+        self.target_values = np.array([norm.ppf(target_bound, loc=mean, scale=std) for target_bound in target_bounds], dtype=np.float64)
         return True
 
     def fit(self, data: np.ndarray) -> bool:
-        self.source_values = [np.percentile(data, 100.0 * i / self.linear_num) for i in range(self.linear_num + 1)]
+        self.source_values = np.array([np.percentile(data, 100.0 * i / self.linear_num) for i in range(self.linear_num + 1)], dtype=np.float64)
 
         self.linear_func = interpolate.interp1d(self.source_values, self.target_values)
         self.inv_linear_func = interpolate.interp1d(self.target_values, self.source_values)
