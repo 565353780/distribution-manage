@@ -5,8 +5,8 @@ from scipy.stats import norm
 class MultiLinearTransformer(object):
     def __init__(
         self,
-        target_min_bound: float = 0.1,
-        target_max_bound: float = 0.9,
+        target_min_bound: float = 0.0 + 1e-3,
+        target_max_bound: float = 1.0 - 1e-3,
         linear_num: int = 100,
     ) -> None:
         self.target_min_bound = target_min_bound

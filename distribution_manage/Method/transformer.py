@@ -17,7 +17,7 @@ from sklearn.preprocessing import (
 )
 
 from distribution_manage.Config.mode import VALID_MODES
-from distribution_manage.Method.path import removeFile
+from distribution_manage.Method.path import createFileFolder, removeFile
 from distribution_manage.Module.multi_linear_transformer import MultiLinearTransformer
 
 
@@ -111,6 +111,8 @@ def toTransformersFile(transformer_func, data: np.ndarray, save_file_path: str, 
             return True
 
         removeFile(save_file_path)
+
+    createFileFolder(save_file_path)
 
     data_list = [data[:, i].reshape(-1, 1) for i in range(data.shape[1])]
     print('start create transformers...')

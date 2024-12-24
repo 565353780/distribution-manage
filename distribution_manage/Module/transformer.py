@@ -9,6 +9,7 @@ from distribution_manage.Method.transformer import (
     toTransformersFile,
     transformData
 )
+from distribution_manage.Method.render import plotDistribution
 
 
 class Transformer(object):
@@ -57,3 +58,17 @@ class Transformer(object):
 
     def inverse_transform(self, data: Union[np.ndarray, torch.Tensor]) -> Union[np.ndarray, torch.Tensor]:
         return transformData(self.transform_dict, data, True)
+
+    def plotDistribution(
+        self,
+        data: np.ndarray,
+        bins: int = 100,
+        save_image_file_path: Union[str, None] = None,
+        render: bool = True,
+    ) -> bool:
+        if not plotDistribution(data, bins, save_image_file_path, render):
+            print('[ERROR][Transformer::plotDistribution]')
+            print('\t plotDistribution failed!')
+            return False
+
+        return True
