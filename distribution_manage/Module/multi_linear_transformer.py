@@ -68,4 +68,7 @@ class MultiLinearTransformer(object):
             print('\t inv linear function not exist! will return source data!')
             return data
 
-        return self.inv_linear_func(data)
+        #TODO: map outer values into bound values here, may need to update this later
+        valid_data = np.clip(data, self.target_values[0], self.target_values[-1])
+
+        return self.inv_linear_func(valid_data)

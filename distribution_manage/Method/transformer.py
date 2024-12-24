@@ -135,7 +135,12 @@ def transformDataWithPool(inputs: list) -> np.ndarray:
         trans_data_array = transformer.transform(data.reshape(-1, 1)).reshape(-1, 1)
     return trans_data_array
 
-def transformData(transformer_dict: dict, data: Union[np.ndarray, torch.Tensor], is_inverse: bool = False) -> Union[np.ndarray, torch.Tensor]:
+def transformData(
+    transformer_dict: dict,
+    data: Union[np.ndarray, torch.Tensor],
+    is_inverse: bool = False,
+    with_pool: bool = True,
+) -> Union[np.ndarray, torch.Tensor]:
     key_num = len(list(transformer_dict.keys()))
     if key_num == 0:
         print('[WARN][mash_distribution::transformData]')
@@ -152,13 +157,21 @@ def transformData(transformer_dict: dict, data: Union[np.ndarray, torch.Tensor],
     else:
         valid_data_array = data_array
 
-    double_data_array = valid_data_array.astype(np.float64)
+    if with_pool:
+        inputs_list = [[transformer_dict[str(i)], valid_data_array[:, i], is_inverse] for i in range(data.shape[1])]
+        with Pool(data.shape[1]) as pool:
+            trans_data_array_list = pool.map(transformDataWithPool, inputs_list)
 
-    inputs_list = [[transformer_dict[str(i)], double_data_array[:, i], is_inverse] for i in range(data.shape[1])]
-    with Pool(data.shape[1]) as pool:
-        trans_data_array_list = pool.map(transformDataWithPool, inputs_list)
+        trans_data_array = np.hstack(trans_data_array_list)
+    else:
+        trans_data_array = np.zeros_like(valid_data_array)
 
-    trans_data_array = np.hstack(trans_data_array_list)
+        for i in range(valid_data_array.shape[1]):
+            if is_inverse:
+                trans_data_array[:, i] = transformer_dict[str(i)].inverse_transform(valid_data_array[:, i].reshape(-1, 1)).reshape(-1)
+            else:
+                trans_data_array[:, i] = transformer_dict[str(i)].transform(valid_data_array[:, i].reshape(-1, 1)).reshape(-1)
+
 
     if data_array.ndim != 2:
         valid_trans_data_array = trans_data_array.reshape(*data_array.shape)

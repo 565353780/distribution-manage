@@ -53,11 +53,11 @@ class Transformer(object):
         self.transform_dict = joblib.load(file_path)
         return True
 
-    def transform(self, data: Union[np.ndarray, torch.Tensor]) -> Union[np.ndarray, torch.Tensor]:
-        return transformData(self.transform_dict, data, False)
+    def transform(self, data: Union[np.ndarray, torch.Tensor], with_pool: bool = True) -> Union[np.ndarray, torch.Tensor]:
+        return transformData(self.transform_dict, data, False, with_pool)
 
-    def inverse_transform(self, data: Union[np.ndarray, torch.Tensor]) -> Union[np.ndarray, torch.Tensor]:
-        return transformData(self.transform_dict, data, True)
+    def inverse_transform(self, data: Union[np.ndarray, torch.Tensor], with_pool: bool = True) -> Union[np.ndarray, torch.Tensor]:
+        return transformData(self.transform_dict, data, True, with_pool)
 
     @staticmethod
     def plotDistribution(
