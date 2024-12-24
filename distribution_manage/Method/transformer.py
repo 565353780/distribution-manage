@@ -16,7 +16,9 @@ from sklearn.preprocessing import (
     StandardScaler,
 )
 
+from distribution_manage.Config.mode import VALID_MODES
 from distribution_manage.Method.path import removeFile
+from distribution_manage.Module.multi_linear_transformer import MultiLinearTransformer
 
 
 def getUniformTransformer(data: np.ndarray) -> QuantileTransformer:
@@ -63,6 +65,45 @@ def getStandardScaler(data: np.ndarray) -> StandardScaler:
     transformer = StandardScaler()
     transformer.fit(data.astype(np.float64))
     return transformer
+
+def getMultiLinearTransformer(data: np.ndarray) -> MultiLinearTransformer:
+    transformer = MultiLinearTransformer()
+    transformer.fit(data.astype(np.float64))
+    return transformer
+
+def getTransformerFunction(mode: str):
+    if mode not in VALID_MODES:
+        print('[ERROR][transformer::getTransformerFunction]')
+        print('\t mode not valid!')
+        print('\t mode:', mode)
+        print('\t valid modes:', VALID_MODES)
+        return None
+
+    if mode == 'uniform':
+        return getUniformTransformer
+    if mode == 'normal':
+        return getNormalTransformer
+    if mode == 'power':
+        return getPowerTransformer
+    if mode == 'robust':
+        return getRobustScaler
+    if mode == 'binary':
+        return getBinarizer
+    if mode == 'kernel':
+        return getKernelCenterer
+    if mode == 'min_max':
+        return getMinMaxScaler
+    if mode == 'max_abs':
+        return getMaxAbsScaler
+    if mode == 'standard':
+        return getStandardScaler
+    if mode == 'multi_linear':
+        return getMultiLinearTransformer
+
+    print('[ERROR][transformer::getTransformerFunction]')
+    print('\t transformer not defined for this mode!')
+    print('\t mode:', mode)
+    return None
 
 def toTransformersFile(transformer_func, data: np.ndarray, save_file_path: str, overwrite: bool = False) -> bool:
     if os.path.exists(save_file_path):
