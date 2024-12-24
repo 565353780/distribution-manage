@@ -16,7 +16,7 @@ def demo():
 
     trans_data = transformer.transform(data)
 
-    transformer.plotDistribution(trans_data, bins, save_image_file_path, render)
+    Transformer.plotDistribution(trans_data, bins, save_image_file_path, render)
 
     trans_back_data = transformer.inverse_transform(trans_data)
 
