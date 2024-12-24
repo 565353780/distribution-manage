@@ -59,8 +59,8 @@ class Transformer(object):
     def inverse_transform(self, data: Union[np.ndarray, torch.Tensor]) -> Union[np.ndarray, torch.Tensor]:
         return transformData(self.transform_dict, data, True)
 
+    @staticmethod
     def plotDistribution(
-        self,
         data: np.ndarray,
         bins: int = 100,
         save_image_file_path: Union[str, None] = None,
