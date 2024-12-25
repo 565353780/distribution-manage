@@ -60,7 +60,10 @@ class MultiLinearTransformer(object):
             print('\t linear function not exist! will return source data!')
             return data
 
-        return self.linear_func(data)
+        #TODO: map outer values into bound values here, may need to update this later
+        valid_data = np.clip(data, self.source_values[0], self.source_values[-1])
+
+        return self.linear_func(valid_data)
 
     def inverse_transform(self, data: np.ndarray) -> np.ndarray:
         if self.inv_linear_func is None:
