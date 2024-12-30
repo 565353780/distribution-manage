@@ -67,7 +67,13 @@ def getStandardScaler(data: np.ndarray) -> StandardScaler:
     return transformer
 
 def getMultiLinearTransformer(data: np.ndarray) -> MultiLinearTransformer:
-    transformer = MultiLinearTransformer()
+    transformer = MultiLinearTransformer(
+        0.0 + 1e-3,
+        1.0 - 1e-3,
+        100,
+        0.0,
+        1.0,
+    )
     transformer.fit(data.astype(np.float64))
     return transformer
 

@@ -2,23 +2,30 @@ import numpy as np
 from scipy import interpolate
 from scipy.stats import norm
 
+from distribution_manage.Method.path import createFileFolder
+from distribution_manage.Module.linear_function import LinearFunction
+
 class MultiLinearTransformer(object):
     def __init__(
         self,
         target_min_bound: float = 0.0 + 1e-3,
         target_max_bound: float = 1.0 - 1e-3,
         linear_num: int = 100,
+        mean: float = 0.0,
+        std: float = 1.0,
     ) -> None:
-        self.target_min_bound = target_min_bound
-        self.target_max_bound = target_max_bound
-        self.linear_num = linear_num
-
         self.source_values = []
         self.target_values = []
         self.linear_func = None
         self.inv_linear_func = None
 
-        self.updateBounds(target_min_bound, target_max_bound, linear_num)
+        self.updateBounds(
+            target_min_bound,
+            target_max_bound,
+            linear_num, 
+            mean,
+            std,
+        )
         return
 
     def reset(self) -> bool:
@@ -30,9 +37,9 @@ class MultiLinearTransformer(object):
 
     def updateBounds(
         self,
-        target_min_bound: float = 0.2,
-        target_max_bound: float = 0.8,
-        linear_num: int = 10,
+        target_min_bound: float = 0.0 + 1e-3,
+        target_max_bound: float = 1.0 - 1e-3,
+        linear_num: int = 100,
         mean: float = 0.0,
         std: float = 1.0,
     ) -> bool:
@@ -41,6 +48,8 @@ class MultiLinearTransformer(object):
         self.target_min_bound = target_min_bound
         self.target_max_bound = target_max_bound
         self.linear_num = linear_num
+        self.mean = mean
+        self.std = std
 
         target_bounds = np.linspace(self.target_min_bound, self.target_max_bound, linear_num + 1, dtype=np.float64)
 
@@ -48,10 +57,12 @@ class MultiLinearTransformer(object):
         return True
 
     def fit(self, data: np.ndarray) -> bool:
-        self.source_values = np.array([np.percentile(data, 100.0 * i / self.linear_num) for i in range(self.linear_num + 1)], dtype=np.float64)
+        sorted_data = np.sort(data.reshape(-1), axis=0)
+        indices = [int(i / self.linear_num * (sorted_data.shape[0] - 1)) for i in range(self.linear_num + 1)]
+        self.source_values = sorted_data[indices]
 
-        self.linear_func = interpolate.interp1d(self.source_values, self.target_values)
-        self.inv_linear_func = interpolate.interp1d(self.target_values, self.source_values)
+        self.linear_func = LinearFunction(self.source_values, self.target_values)
+        self.inv_linear_func = LinearFunction(self.target_values, self.source_values)
         return True
 
     def transform(self, data: np.ndarray) -> np.ndarray:
@@ -60,10 +71,7 @@ class MultiLinearTransformer(object):
             print('\t linear function not exist! will return source data!')
             return data
 
-        #TODO: map outer values into bound values here, may need to update this later
-        valid_data = np.clip(data, self.source_values[0], self.source_values[-1])
-
-        return self.linear_func(valid_data)
+        return self.linear_func(data)
 
     def inverse_transform(self, data: np.ndarray) -> np.ndarray:
         if self.inv_linear_func is None:
@@ -71,7 +79,4 @@ class MultiLinearTransformer(object):
             print('\t inv linear function not exist! will return source data!')
             return data
 
-        #TODO: map outer values into bound values here, may need to update this later
-        valid_data = np.clip(data, self.target_values[0], self.target_values[-1])
-
-        return self.inv_linear_func(valid_data)
+        return self.inv_linear_func(data)

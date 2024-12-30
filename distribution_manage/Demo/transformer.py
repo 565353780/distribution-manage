@@ -8,7 +8,7 @@ def demo():
     bins = 100
     save_image_file_path = './output/multi_linear_trans_data.pdf'
     render = False
-    overwrite = False
+    overwrite = True
 
     Transformer.fit('multi_linear', data, save_transformer_file_path, overwrite)
 
