@@ -164,7 +164,7 @@ def transformData(
         valid_data_array = data_array
 
     if with_pool:
-        inputs_list = [[transformer_dict[str(i)], valid_data_array[:, i], is_inverse] for i in range(data.shape[1])]
+        inputs_list = [[transformer_dict[str(i)], valid_data_array[:, i], is_inverse] for i in range(valid_data_array.shape[1])]
         with Pool(data.shape[1]) as pool:
             trans_data_array_list = pool.map(transformDataWithPool, inputs_list)
 
