@@ -22,49 +22,62 @@ from distribution_manage.Module.multi_linear_transformer import MultiLinearTrans
 
 
 def getUniformTransformer(data: np.ndarray) -> QuantileTransformer:
-    transformer = QuantileTransformer(n_quantiles=1000, output_distribution='uniform', subsample=10000)
+    transformer = QuantileTransformer(
+        n_quantiles=1000, output_distribution="uniform", subsample=10000
+    )
     transformer.fit(data.astype(np.float64))
     return transformer
 
+
 def getNormalTransformer(data: np.ndarray) -> QuantileTransformer:
-    transformer = QuantileTransformer(n_quantiles=1000, output_distribution='normal', subsample=10000)
+    transformer = QuantileTransformer(
+        n_quantiles=1000, output_distribution="normal", subsample=10000
+    )
     transformer.fit(data.astype(np.float64))
     return transformer
+
 
 def getPowerTransformer(data: np.ndarray) -> PowerTransformer:
     transformer = PowerTransformer()
     transformer.fit(data.astype(np.float64))
     return transformer
 
+
 def getRobustScaler(data: np.ndarray) -> RobustScaler:
     transformer = RobustScaler()
     transformer.fit(data.astype(np.float64))
     return transformer
+
 
 def getBinarizer(data: np.ndarray) -> Binarizer:
     transformer = Binarizer()
     transformer.fit(data.astype(np.float64))
     return transformer
 
+
 def getKernelCenterer(data: np.ndarray) -> KernelCenterer:
     transformer = KernelCenterer()
     transformer.fit(data.astype(np.float64))
     return transformer
+
 
 def getMinMaxScaler(data: np.ndarray) -> MinMaxScaler:
     transformer = MinMaxScaler()
     transformer.fit(data.astype(np.float64))
     return transformer
 
+
 def getMaxAbsScaler(data: np.ndarray) -> MaxAbsScaler:
     transformer = MaxAbsScaler()
     transformer.fit(data.astype(np.float64))
     return transformer
 
+
 def getStandardScaler(data: np.ndarray) -> StandardScaler:
     transformer = StandardScaler()
     transformer.fit(data.astype(np.float64))
     return transformer
+
 
 def getMultiLinearTransformer(data: np.ndarray) -> MultiLinearTransformer:
     transformer = MultiLinearTransformer(
@@ -77,41 +90,45 @@ def getMultiLinearTransformer(data: np.ndarray) -> MultiLinearTransformer:
     transformer.fit(data.astype(np.float64))
     return transformer
 
+
 def getTransformerFunction(mode: str):
     if mode not in VALID_MODES:
-        print('[ERROR][transformer::getTransformerFunction]')
-        print('\t mode not valid!')
-        print('\t mode:', mode)
-        print('\t valid modes:', VALID_MODES)
+        print("[ERROR][transformer::getTransformerFunction]")
+        print("\t mode not valid!")
+        print("\t mode:", mode)
+        print("\t valid modes:", VALID_MODES)
         return None
 
-    if mode == 'uniform':
+    if mode == "uniform":
         return getUniformTransformer
-    if mode == 'normal':
+    if mode == "normal":
         return getNormalTransformer
-    if mode == 'power':
+    if mode == "power":
         return getPowerTransformer
-    if mode == 'robust':
+    if mode == "robust":
         return getRobustScaler
-    if mode == 'binary':
+    if mode == "binary":
         return getBinarizer
-    if mode == 'kernel':
+    if mode == "kernel":
         return getKernelCenterer
-    if mode == 'min_max':
+    if mode == "min_max":
         return getMinMaxScaler
-    if mode == 'max_abs':
+    if mode == "max_abs":
         return getMaxAbsScaler
-    if mode == 'standard':
+    if mode == "standard":
         return getStandardScaler
-    if mode == 'multi_linear':
+    if mode == "multi_linear":
         return getMultiLinearTransformer
 
-    print('[ERROR][transformer::getTransformerFunction]')
-    print('\t transformer not defined for this mode!')
-    print('\t mode:', mode)
+    print("[ERROR][transformer::getTransformerFunction]")
+    print("\t transformer not defined for this mode!")
+    print("\t mode:", mode)
     return None
 
-def toTransformersFile(transformer_func, data: np.ndarray, save_file_path: str, overwrite: bool = False) -> bool:
+
+def toTransformersFile(
+    transformer_func, data: np.ndarray, save_file_path: str, overwrite: bool = False
+) -> bool:
     if os.path.exists(save_file_path):
         if not overwrite:
             return True
@@ -121,7 +138,7 @@ def toTransformersFile(transformer_func, data: np.ndarray, save_file_path: str, 
     createFileFolder(save_file_path)
 
     data_list = [data[:, i].reshape(-1, 1) for i in range(data.shape[1])]
-    print('start create transformers...')
+    print("start create transformers...")
     with Pool(data.shape[1]) as pool:
         transformer_list = pool.map(transformer_func, data_list)
 
@@ -130,16 +147,20 @@ def toTransformersFile(transformer_func, data: np.ndarray, save_file_path: str, 
         transformer_dict[str(i)] = transformer_list[i]
 
     joblib.dump(transformer_dict, save_file_path)
-    print('finish save transformers')
+    print("finish save transformers")
     return True
+
 
 def transformDataWithPool(inputs: list) -> np.ndarray:
     transformer, data, is_inverse = inputs
     if is_inverse:
-        trans_data_array = transformer.inverse_transform(data.reshape(-1, 1)).reshape(-1, 1)
+        trans_data_array = transformer.inverse_transform(data.reshape(-1, 1)).reshape(
+            -1, 1
+        )
     else:
         trans_data_array = transformer.transform(data.reshape(-1, 1)).reshape(-1, 1)
     return trans_data_array
+
 
 def transformData(
     transformer_dict: dict,
@@ -149,8 +170,8 @@ def transformData(
 ) -> Union[np.ndarray, torch.Tensor]:
     key_num = len(list(transformer_dict.keys()))
     if key_num == 0:
-        print('[WARN][mash_distribution::transformData]')
-        print('\t transformer dict is empty! will return source data!')
+        print("[WARN][mash_distribution::transformData]")
+        print("\t transformer dict is empty! will return source data!")
         return data
 
     if isinstance(data, torch.Tensor):
@@ -164,7 +185,10 @@ def transformData(
         valid_data_array = data_array
 
     if with_pool:
-        inputs_list = [[transformer_dict[str(i)], valid_data_array[:, i], is_inverse] for i in range(valid_data_array.shape[1])]
+        inputs_list = [
+            [transformer_dict[str(i)], valid_data_array[:, i], is_inverse]
+            for i in range(valid_data_array.shape[1])
+        ]
         with Pool(data.shape[1]) as pool:
             trans_data_array_list = pool.map(transformDataWithPool, inputs_list)
 
@@ -174,10 +198,17 @@ def transformData(
 
         for i in range(valid_data_array.shape[1]):
             if is_inverse:
-                trans_data_array[:, i] = transformer_dict[str(i)].inverse_transform(valid_data_array[:, i].reshape(-1, 1)).reshape(-1)
+                trans_data_array[:, i] = (
+                    transformer_dict[str(i)]
+                    .inverse_transform(valid_data_array[:, i].reshape(-1, 1))
+                    .reshape(-1)
+                )
             else:
-                trans_data_array[:, i] = transformer_dict[str(i)].transform(valid_data_array[:, i].reshape(-1, 1)).reshape(-1)
-
+                trans_data_array[:, i] = (
+                    transformer_dict[str(i)]
+                    .transform(valid_data_array[:, i].reshape(-1, 1))
+                    .reshape(-1)
+                )
 
     if data_array.ndim != 2:
         valid_trans_data_array = trans_data_array.reshape(*data_array.shape)
@@ -185,7 +216,9 @@ def transformData(
         valid_trans_data_array = trans_data_array
 
     if isinstance(data, torch.Tensor):
-        valid_trans_data = torch.from_numpy(valid_trans_data_array).to(data.device, dtype=data.dtype)
+        valid_trans_data = torch.from_numpy(valid_trans_data_array).to(
+            data.device, dtype=data.dtype
+        )
     else:
         valid_trans_data = valid_trans_data_array.astype(valid_data_array.dtype)
 

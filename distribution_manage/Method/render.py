@@ -17,8 +17,8 @@ def plotDistribution(
 
     for i in range(num_dimensions):
         ax = axes[i]
-        ax.hist(data[:, i], bins=bins, alpha=0.75, color='blue', edgecolor='black')
-        ax.set_title(f"Dimension {i+1}")
+        ax.hist(data[:, i], bins=bins, alpha=0.75, color="blue", edgecolor="black")
+        ax.set_title(f"Dimension {i + 1}")
         ax.set_xlabel("Value")
         ax.set_ylabel("Frequency")
 

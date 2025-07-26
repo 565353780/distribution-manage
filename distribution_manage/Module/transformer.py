@@ -7,7 +7,7 @@ from typing import Union
 from distribution_manage.Method.transformer import (
     getTransformerFunction,
     toTransformersFile,
-    transformData
+    transformData,
 )
 from distribution_manage.Method.render import plotDistribution
 
@@ -32,31 +32,35 @@ class Transformer(object):
     ) -> bool:
         transformer_func = getTransformerFunction(mode)
         if transformer_func is None:
-            print('[ERROR][Transformer::fit]')
-            print('\t getTransformerFunction failed!')
+            print("[ERROR][Transformer::fit]")
+            print("\t getTransformerFunction failed!")
             return False
 
         if not toTransformersFile(transformer_func, data, save_file_path, overwrite):
-            print('[ERROR][Transformer::fit]')
-            print('\t toTransformersFile failed!')
+            print("[ERROR][Transformer::fit]")
+            print("\t toTransformersFile failed!")
             return False
 
         return True
 
     def loadFile(self, file_path: str) -> bool:
         if not os.path.exists(file_path):
-            print('[ERROR][Transformer::loadFile]')
-            print('\t file not exist!')
-            print('\t file_path:', file_path)
+            print("[ERROR][Transformer::loadFile]")
+            print("\t file not exist!")
+            print("\t file_path:", file_path)
             return False
 
         self.transform_dict = joblib.load(file_path)
         return True
 
-    def transform(self, data: Union[np.ndarray, torch.Tensor], with_pool: bool = True) -> Union[np.ndarray, torch.Tensor]:
+    def transform(
+        self, data: Union[np.ndarray, torch.Tensor], with_pool: bool = True
+    ) -> Union[np.ndarray, torch.Tensor]:
         return transformData(self.transform_dict, data, False, with_pool)
 
-    def inverse_transform(self, data: Union[np.ndarray, torch.Tensor], with_pool: bool = True) -> Union[np.ndarray, torch.Tensor]:
+    def inverse_transform(
+        self, data: Union[np.ndarray, torch.Tensor], with_pool: bool = True
+    ) -> Union[np.ndarray, torch.Tensor]:
         return transformData(self.transform_dict, data, True, with_pool)
 
     @staticmethod
@@ -67,8 +71,8 @@ class Transformer(object):
         render: bool = True,
     ) -> bool:
         if not plotDistribution(data, bins, save_image_file_path, render):
-            print('[ERROR][Transformer::plotDistribution]')
-            print('\t plotDistribution failed!')
+            print("[ERROR][Transformer::plotDistribution]")
+            print("\t plotDistribution failed!")
             return False
 
         return True

@@ -9,6 +9,7 @@ def createFileFolder(file_path):
     os.makedirs(file_folder_path, exist_ok=True)
     return True
 
+
 def removeFile(file_path):
     while os.path.exists(file_path):
         try:
@@ -16,6 +17,7 @@ def removeFile(file_path):
         except:
             continue
     return True
+
 
 def removeFolder(folder_path):
     while os.path.exists(folder_path):
@@ -25,6 +27,7 @@ def removeFolder(folder_path):
             pass
 
     return True
+
 
 def renameFile(source_file_path, target_file_path, overwrite: bool = False):
     if os.path.exists(target_file_path):
@@ -40,7 +43,10 @@ def renameFile(source_file_path, target_file_path, overwrite: bool = False):
             pass
     return True
 
-def renameFolder(source_folder_path: str, target_folder_path: str, overwrite: bool = False):
+
+def renameFolder(
+    source_folder_path: str, target_folder_path: str, overwrite: bool = False
+):
     if os.path.exists(target_folder_path):
         if not overwrite:
             return True
@@ -54,6 +60,7 @@ def renameFolder(source_folder_path: str, target_folder_path: str, overwrite: bo
             pass
 
     return True
+
 
 def waitFile(file_path: str, wait_second: int) -> bool:
     start = time()

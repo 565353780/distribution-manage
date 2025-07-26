@@ -1,9 +1,8 @@
 import numpy as np
-from scipy import interpolate
 from scipy.stats import norm
 
-from distribution_manage.Method.path import createFileFolder
 from distribution_manage.Module.linear_function import LinearFunction
+
 
 class MultiLinearTransformer(object):
     def __init__(
@@ -22,7 +21,7 @@ class MultiLinearTransformer(object):
         self.updateBounds(
             target_min_bound,
             target_max_bound,
-            linear_num, 
+            linear_num,
             mean,
             std,
         )
@@ -51,14 +50,28 @@ class MultiLinearTransformer(object):
         self.mean = mean
         self.std = std
 
-        target_bounds = np.linspace(self.target_min_bound, self.target_max_bound, linear_num + 1, dtype=np.float64)
+        target_bounds = np.linspace(
+            self.target_min_bound,
+            self.target_max_bound,
+            linear_num + 1,
+            dtype=np.float64,
+        )
 
-        self.target_values = np.array([norm.ppf(target_bound, loc=mean, scale=std) for target_bound in target_bounds], dtype=np.float64)
+        self.target_values = np.array(
+            [
+                norm.ppf(target_bound, loc=mean, scale=std)
+                for target_bound in target_bounds
+            ],
+            dtype=np.float64,
+        )
         return True
 
     def fit(self, data: np.ndarray) -> bool:
         sorted_data = np.sort(data.reshape(-1), axis=0)
-        indices = [int(i / self.linear_num * (sorted_data.shape[0] - 1)) for i in range(self.linear_num + 1)]
+        indices = [
+            int(i / self.linear_num * (sorted_data.shape[0] - 1))
+            for i in range(self.linear_num + 1)
+        ]
         self.source_values = sorted_data[indices]
 
         self.linear_func = LinearFunction(self.source_values, self.target_values)
@@ -67,16 +80,16 @@ class MultiLinearTransformer(object):
 
     def transform(self, data: np.ndarray) -> np.ndarray:
         if self.linear_func is None:
-            print('[WARN][MultiLinearTransformer::transform]')
-            print('\t linear function not exist! will return source data!')
+            print("[WARN][MultiLinearTransformer::transform]")
+            print("\t linear function not exist! will return source data!")
             return data
 
         return self.linear_func(data)
 
     def inverse_transform(self, data: np.ndarray) -> np.ndarray:
         if self.inv_linear_func is None:
-            print('[WARN][MultiLinearTransformer::transform]')
-            print('\t inv linear function not exist! will return source data!')
+            print("[WARN][MultiLinearTransformer::transform]")
+            print("\t inv linear function not exist! will return source data!")
             return data
 
         return self.inv_linear_func(data)
